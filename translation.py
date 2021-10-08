@@ -167,7 +167,7 @@ class LunarLanderPredicates(PredicateTemplate):
                                       'On top of goal', 'Higher than goal', 'Same height as goal',
                                       'Left leg on ground', 'Right leg on ground',
                                       'Lander tilted left', 'Lander tilted right',
-                                      'Moving right', 'Moving left', 'Moving up', 'Moving down'])
+                                      'Moving right', 'Moving left'])
     
     def state_to_binary(self, state):
         b = [self.left_of_goal(state),
@@ -180,9 +180,7 @@ class LunarLanderPredicates(PredicateTemplate):
              self.tilted_left(state),
              self.tilted_right(state),
              self.moving_right(state),
-             self.moving_left(state),
-             self.moving_up(state),
-             self.moving_down(state)]
+             self.moving_left(state)]
         return np.array(b)
     
     def translate_state(self, binary_set):
@@ -199,7 +197,7 @@ class LunarLanderPredicates(PredicateTemplate):
         return string
 
     def feat_groups(self):
-        groups = [[0, 1, 2], [3, 4], [5], [6], [7, 8], [9, 10], [11, 12]]
+        groups = [[0, 1, 2], [3, 4], [5], [6], [7, 8], [9, 10]]
         return groups
     
     def predicate_set(self):
@@ -213,9 +211,7 @@ class LunarLanderPredicates(PredicateTemplate):
                       {'true': 'Lander tilted left', 'false': 'Lander not tilted left'},
                       {'true': 'Lander tilted right', 'false': 'Lander not tilted right'},
                       {'true': 'Moving right', 'false': 'Not moving right'},
-                      {'true': 'Moving left', 'false': 'Not moving left'},
-                      {'true': 'Moving up', 'false': 'Not moving up'},
-                      {'true': 'Moving down', 'false': 'Not moving down'}]
+                      {'true': 'Moving left', 'false': 'Not moving left'}]
         return predicates
     
     def num_predicates(self):
@@ -285,46 +281,25 @@ class LunarLanderPredicates(PredicateTemplate):
             return 1
         else:
             return 0
-    
-    def moving_up(self, state):
-        if state[3] > 0.01:
-            return 1
-        else:
-            return 0
-    
-    def moving_down(self, state):
-        if state[3] < -0.01:
-            return 1
-        else:
-            return 0
 
 
 class BlackjackPredicates(PredicateTemplate):
     def __init__(self, num_feats):
         super().__init__(num_feats)
         self.attr_names = ['Current sum', 'Dealer card', 'Usable ace']
-        self.language_set = np.array(['sum less than 14', 'sum 14', 'sum 15',
-                                      'sum 16', 'sum 17', 'sum 18', 'sum 19',
-                                      'sum 20', 'sum 21', ' d sum less 7', 'd sum 7',
-                                      'd sum 8', 'd sum 9', 'd sum 10', 'd sum ace', 'ace 11'])
+        self.language_set = np.array(['sum less than 14', 'sum 14-16','sum 17-19',
+                                      'sum 20-21', ' d sum less 7', 'd sum 7-9',
+                                      'd sum 10-ace','ace 11'])
     
 
     def predicate_set(self):
         predicates = [{'true': 'Sum less than 14', 'false': 'Sum not less than 14'},
-                      {'true': 'Sum of 14', 'false': 'Sum not of 14'},
-                      {'true': 'Sum of 15', 'false': 'Sum not of 15'},
-                      {'true': 'Sum of 16', 'false': 'Sum not of 16'},
-                      {'true': 'Sum of 17', 'false': 'Sum not of 17'},
-                      {'true': 'Sum of 18', 'false': 'Sum not of 18'},
-                      {'true': 'Sum of 19', 'false': 'Sum not of 19'},
-                      {'true': 'Sum of 20', 'false': 'Sum not of 20'},
-                      {'true': 'Sum of 21', 'false': 'Sum not of 21'},
+                      {'true': 'Sum of 14-16', 'false': 'Sum not of 14-16'},
+                      {'true': 'Sum of 17-19', 'false': 'Sum not of 17-19'},
+                      {'true': 'Sum of 20-21', 'false': 'Sum not of 20-21'},
                       {'true': 'Dealer card less than 7', 'false': 'Dealer card 7 or more'},
-                      {'true': 'Dealer card 7', 'false': 'Dealer card not 7'},
-                      {'true': 'Dealer card 8', 'false': 'Dealer card not 8'},
-                      {'true': 'Dealer card 9', 'false': 'Dealer card not 9'},
-                      {'true': 'Dealer card 10 or face', 'false': 'Dealer card not 10 or face'},
-                      {'true': 'Dealer card Ace', 'false': 'Dealer card not Ace'},
+                      {'true': 'Dealer card 7-9', 'false': 'Dealer card not 7-9'},
+                      {'true': 'Dealer card 10 or ace', 'false': 'Dealer card not 10 or ace'},
                       {'true': 'Ace is 11', 'false': 'No ace or ace is not 11'}]
         
         return predicates
@@ -333,26 +308,18 @@ class BlackjackPredicates(PredicateTemplate):
         return len(self.predicate_set())
     
     def feat_groups(self):
-        groups = [[0, 1, 2, 3, 4, 5, 6, 7, 8], [9, 10, 11, 12, 13, 14], [15]]
+        groups = [[0, 1, 2, 3], [4, 5, 6], [7]]
         return groups
 
 
     def state_to_binary(self, state):
         b = [self.less_14(state),
-             self.p14(state),
-             self.p15(state),
-             self.p16(state),
-             self.p17(state),
-             self.p18(state),
-             self.p19(state),
-             self.p20(state),
-             self.p21(state),
+             self.p14_16(state),
+             self.p17_19(state),
+             self.p20_21(state),
              self.dless_7(state),
-             self.d7(state),
-             self.d8(state),
-             self.d9(state),
-             self.d10(state),
-             self.dace(state),
+             self.d7_9(state),
+             self.d10_ace(state),
              self.use_ace(state)]
         return np.array(b)
     
@@ -376,50 +343,20 @@ class BlackjackPredicates(PredicateTemplate):
         else:
             return 0
     
-    def p14(self, state):
-        if state[0] == 14:
+    def p14_16(self, state):
+        if state[0] >= 14 and state[0] <= 16:
             return 1
         else:
             return 0
     
-    def p15(self, state):
-        if state[0] == 15:
-            return 1
-        else:
-            return 0
-
-    def p16(self, state):
-        if state[0] == 16:
+    def p17_19(self, state):
+        if state[0] >= 17 and state[0] <= 19:
             return 1
         else:
             return 0
     
-    def p17(self, state):
-        if state[0] == 17:
-            return 1
-        else:
-            return 0
-    
-    def p18(self, state):
-        if state[0] == 18:
-            return 1
-        else:
-            return 0
-
-    def p19(self, state):
-        if state[0] == 19:
-            return 1
-        else:
-            return 0
-    
-    def p20(self, state):
-        if state[0] == 20:
-            return 1
-        else:
-            return 0
-    
-    def p21(self, state):
-        if state[0] == 21:
+    def p20_21(self, state):
+        if state[0] == 20 or state[0] == 21:
             return 1
         else:
             return 0
@@ -430,35 +367,18 @@ class BlackjackPredicates(PredicateTemplate):
         else:
             return 0
     
-    def d7(self, state):
-        if state[1] == 7:
+    def d7_9(self, state):
+        if state[1] >= 7 and state[1] <= 9:
             return 1
         else:
             return 0
     
-    def d8(self, state):
-        if state[1] == 8:
-            return 1
-        else:
-            return 0
-
-    def d9(self, state):
-        if state[1] == 9:
+    def d10_ace(self, state):
+        if state[1] == 10 or state[1] == 1:
             return 1
         else:
             return 0
     
-    def d10(self, state):
-        if state[1] == 10:
-            return 1
-        else:
-            return 0
-    
-    def dace(self, state):
-        if state[1] == 1:
-            return 1
-        else:
-            return 0
     
     def use_ace(self, state):
         if state[2] == 1:

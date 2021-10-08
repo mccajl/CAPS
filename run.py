@@ -37,7 +37,7 @@ if __name__ == '__main__':
     fidelity_fn = None
 
     if args.env == 'cart':
-        data, model, num_feats, num_actions = test_cart(model_path, args.num_episodes)
+        data, model, num_feats, num_actions = test_cart(model_path, args.num_episodes, mode=args.alg)
 
         if args.calc_fidelity:
             fidelity_fn = calculate_fidelity_cart
@@ -50,19 +50,9 @@ if __name__ == '__main__':
         
         dataset = Data(data, value_fn)
         translator = CartpolePredicates(num_feats=num_feats)
-        if args.zahavy_baseline:
-            abstract_baseline = APG(num_actions, value_fn, translator)
-            explain_zahavy(args, dataset, translator, abstract_baseline, num_actions)
-        elif args.topin_baseline:
-            info = {'states': dataset.states, 'actions': dataset.actions, 'next_states': dataset.next_states, 'dones': dataset.dones, 'entropies': dataset.entropies}
-            abstract_baseline = APG(num_actions, value_fn, translator, info=info)
-            gen_apg(abstract_baseline)
-        else:
-            abstract_baseline = APG(num_actions, value_fn, translator)
-            explain(args, dataset, model_path, translator, num_feats, num_actions, fidelity_fn, abstract_baseline)
     
     elif args.env == 'grid':
-        data, model, num_feats, num_actions = test_grid(model_path, args.num_episodes)
+        data, model, num_feats, num_actions = test_grid(model_path, args.num_episodes, mode=args.alg)
         if args.calc_fidelity:
             fidelity_fn = calculate_fidelity_grid
         def value_fn(obs):
@@ -77,19 +67,9 @@ if __name__ == '__main__':
         
         dataset = Data(data, value_fn)
         translator = GridworldPredicates(num_feats=num_feats)
-        if args.zahavy_baseline:
-            abstract_baseline = APG(num_actions, value_fn, translator)
-            explain_zahavy(args, dataset, translator, abstract_baseline, num_actions)
-        elif args.topin_baseline:
-            info = {'states': dataset.states, 'actions': dataset.actions, 'next_states': dataset.next_states, 'dones': dataset.dones, 'entropies': dataset.entropies}
-            abstract_baseline = APG(num_actions, value_fn, translator, info=info)
-            gen_apg(abstract_baseline)
-        else:
-            abstract_baseline = APG(num_actions, value_fn, translator)
-            explain(args, dataset, model_path, translator, num_feats, num_actions, fidelity_fn, abstract_baseline)
     
     elif args.env == 'mountain':
-        data, model, num_feats, num_actions = test_mountain(model_path, args.num_episodes)
+        data, model, num_feats, num_actions = test_mountain(model_path, args.num_episodes, mode=args.alg)
         if args.calc_fidelity:
             fidelity_fn = calculate_fidelity_mountain
         def value_fn(obs):
@@ -100,19 +80,9 @@ if __name__ == '__main__':
             return value
         dataset = Data(data, value_fn)
         translator = MountainCarPredicates(num_feats=num_feats)
-        if args.zahavy_baseline:
-            abstract_baseline = APG(num_actions, value_fn, translator)
-            explain_zahavy(args, dataset, translator, abstract_baseline, num_actions)
-        elif args.topin_baseline:
-            info = {'states': dataset.states, 'actions': dataset.actions, 'next_states': dataset.next_states, 'dones': dataset.dones, 'entropies': dataset.entropies}
-            abstract_baseline = APG(num_actions, value_fn, translator, info=info)
-            gen_apg(abstract_baseline)
-        else:
-            abstract_baseline = APG(num_actions, value_fn, translator)
-            explain(args, dataset, model_path, translator, num_feats, num_actions, fidelity_fn, abstract_baseline)
     
     elif args.env == 'lunar':
-        data, model, num_feats, num_actions = test_lunar(model_path, args.num_episodes)
+        data, model, num_feats, num_actions = test_lunar(model_path, args.num_episodes, mode=args.alg)
         if args.calc_fidelity:
             fidelity_fn = calculate_fidelity_lunar
         def value_fn(obs):
@@ -123,19 +93,9 @@ if __name__ == '__main__':
             return value
         dataset = Data(data, value_fn)
         translator = LunarLanderPredicates(num_feats=num_feats)
-        if args.zahavy_baseline:
-            abstract_baseline = APG(num_actions, value_fn, translator)
-            explain_zahavy(args, dataset, translator, abstract_baseline, num_actions)
-        elif args.topin_baseline:
-            info = {'states': dataset.states, 'actions': dataset.actions, 'next_states': dataset.next_states, 'dones': dataset.dones, 'entropies': dataset.entropies}
-            abstract_baseline = APG(num_actions, value_fn, translator, info=info)
-            gen_apg(abstract_baseline)
-        else:
-            abstract_baseline = APG(num_actions, value_fn, translator)
-            explain(args, dataset, model_path, translator, num_feats, num_actions, fidelity_fn, abstract_baseline)
 
     elif args.env == 'blackjack':
-        data, model, num_feats, num_actions = test_blackjack(model_path, args.num_episodes)
+        data, model, num_feats, num_actions = test_blackjack(model_path, args.num_episodes, mode=args.alg)
         if args.calc_fidelity:
             fidelity_fn = calculate_fidelity_blackjack
         def value_fn(obs):
@@ -155,20 +115,20 @@ if __name__ == '__main__':
             return value
         dataset = Data(data, value_fn)
         translator = BlackjackPredicates(num_feats=num_feats)
-        if args.zahavy_baseline:
-            abstract_baseline = APG(num_actions, value_fn, translator)
-            explain_zahavy(args, dataset, translator, abstract_baseline, num_actions)
-        elif args.topin_baseline:
-            info = {'states': dataset.states, 'actions': dataset.actions, 'next_states': dataset.next_states, 'dones': dataset.dones, 'entropies': dataset.entropies}
-            abstract_baseline = APG(num_actions, value_fn, translator, info=info)
-            gen_apg(abstract_baseline)
-        else:
-            abstract_baseline = APG(num_actions, value_fn, translator)
-            explain(args, dataset, model_path, translator, num_feats, num_actions, fidelity_fn, abstract_baseline)
 
     else:
         raise ValueError('Enter valid environment')
 
+    if args.zahavy_baseline:
+        abstract_baseline = APG(num_actions, value_fn, translator)
+        explain_zahavy(args, dataset, translator, abstract_baseline, num_actions, fidelity_fn, model_path, mode=args.alg)
+    elif args.topin_baseline:
+        info = {'states': dataset.states, 'actions': dataset.actions, 'next_states': dataset.next_states, 'dones': dataset.dones, 'entropies': dataset.entropies}
+        abstract_baseline = APG(num_actions, value_fn, translator, info=info)
+        gen_apg(abstract_baseline, model_path, fidelity_fn, mode=args.alg)
+    else:
+        abstract_baseline = APG(num_actions, value_fn, translator)
+        explain(args, dataset, model_path, translator, num_feats, num_actions, fidelity_fn, abstract_baseline, mode=args.alg)
         
 
 
