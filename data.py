@@ -18,9 +18,18 @@ class Data_binary:
         self.num_entries = len(self.bin_states)
         self.ids = ids
         self.cluster_input = np.concatenate([self.bin_states, np.expand_dims(self.ids, axis=1)], axis=1)
-        self.data_bounds = self.get_bounds()
+        self.data_bounds = self.get_bin_bounds()
     
     def get_bounds(self):
+        bounds = {'max': [], 'min': []}
+        data = self.states
+        for feat in range(len(self.states[0])):
+            bounds['max'].append(np.max(data[:, feat]))
+            bounds['min'].append(np.min(data[:, feat]))
+        
+        return bounds
+
+    def get_bin_bounds(self):
 
         bounds = {'max': [], 'min': []}
         data = self.bin_states
