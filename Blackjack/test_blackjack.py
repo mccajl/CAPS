@@ -2,6 +2,7 @@ from bj_env import BlackjackEnv
 import ray
 from ray import tune
 from ray.rllib.agents.ppo import PPOTrainer
+from ray.rllib.agents.dqn import DQNTrainer
 from ray.rllib.models import ModelCatalog
 from ray.tune import run_experiments
 from ray.tune.integration.wandb import WandbLoggerCallback
@@ -12,7 +13,7 @@ import sys
 import numpy as np
 
 
-def test(model_path, num_episodes=10):
+def test(model_path, num_episodes=10, mode='PPO'):
 
     ray.init()
     def env_creator(_):
@@ -31,7 +32,11 @@ def test(model_path, num_episodes=10):
           "num_workers": 1,
           "framework": "torch"
           }
-    agent = PPOTrainer(config=config, env='Blackjack') #Will this work if I train with default cartpole env
+    
+    if mode == 'PPO':
+        agent = PPOTrainer(config=config, env='Blackjack')
+    else:
+        agent = DQNTrainer(config=config, env='Blackjack')
     agent.restore(model_path)
     policy = agent.get_policy()
     model = policy.model
@@ -40,13 +45,23 @@ def test(model_path, num_episodes=10):
         obs = Variable(torch.from_numpy(obs))
         rnn_state = model.get_initial_state()
         seq_len = torch.Tensor([1])
-        logits, _ = model.forward(input_dict={'obs': obs, 'obs_flat': obs}, state=rnn_state, seq_lens=seq_len)
-        action = np.argmax(logits.detach().numpy())
-        value = model.value_function().detach().numpy()
-        logits = np.squeeze(logits.detach().numpy())
-        probs = np.exp(logits) / sum(np.exp(logits))
-        entropy = -sum(probs * np.log(probs))
-        return action, value, entropy
+        if mode == 'PPO':
+            logits, _ = model.forward(input_dict={'obs': obs, 'obs_flat': obs}, state=rnn_state, seq_lens=seq_len)
+            action = np.argmax(logits.detach().numpy())
+            value = model.value_function().detach().numpy()
+            logits = np.squeeze(logits.detach().numpy())
+            probs = np.exp(logits) / sum(np.exp(logits))
+            entropy = -sum(probs * np.log(probs))
+            return action, value, entropy
+        else:
+            model_out, _ = model.from_batch({'obs': obs})
+            q, _, _ = model.get_q_value_distributions(model_out)
+            q = q.detach().numpy()
+            q = np.squeeze(q)
+            act = np.argmax(q)
+            val = np.max(q)
+            diff = np.max(q) - np.min(q)
+            return act, val, -diff
     
     def to_one_hot(obs):
         s = np.zeros(45)
@@ -90,7 +105,7 @@ def test(model_path, num_episodes=10):
 
 
 
-def calculate_fidelity(model_path, all_clusters, data, num_episodes=5):
+def calculate_fidelity(model_path, all_clusters, data, num_episodes=50, topin=False, apg_act=None, mode='PPO'):
     #ray.init()
     def env_creator(_):
         env = BlackjackEnv()
@@ -107,21 +122,46 @@ def calculate_fidelity(model_path, all_clusters, data, num_episodes=5):
           "num_workers": 1,
           "framework": "torch"
           }
-    agent = PPOTrainer(config=config, env='Blackjack') #Will this work if I train with default cartpole env
+    if mode == 'PPO':
+        agent = PPOTrainer(config=config, env='Blackjack')
+    else:
+        agent = DQNTrainer(config=config, env='Blackjack')
     agent.restore(model_path)
     policy = agent.get_policy()
     model = policy.model
 
     def get_action(obs):
+        
         obs = Variable(torch.from_numpy(obs))
         rnn_state = model.get_initial_state()
         seq_len = torch.Tensor([1])
-        logits, _ = model.forward(input_dict={'obs': obs, 'obs_flat': obs}, state=rnn_state, seq_lens=seq_len)
-        action = np.argmax(logits.detach().numpy())
+        if mode == 'PPO':
+            logits, _ = model.forward(input_dict={'obs': obs, 'obs_flat': obs}, state=rnn_state, seq_lens=seq_len)
+            action = np.argmax(logits.detach().numpy())
 
-        return action
+            return action
+        else:
+            model_out, _ = model.from_batch({'obs': obs})
+            q, _, _ = model.get_q_value_distributions(model_out)
+            q = q.detach().numpy()
+            q = np.squeeze(q)
+            act = np.argmax(q)
+            return act
     
-    all_actions = data.actions
+    def to_one_hot(obs):
+        s = np.zeros(45)
+        obs = np.squeeze(obs)
+        p = obs[0]
+        d = obs[1]
+        a = obs[2]
+        s[p] = 1
+        s[32+d] = 1
+        s[43+a] = 1
+        s = np.reshape(s, [1, -1])
+        return s
+
+    if not topin:
+        all_actions = data.actions
 
     def get_cluster_action(clusters, num_feats=3, num_actions=2):
         if clusters == []:
@@ -164,11 +204,14 @@ def calculate_fidelity(model_path, all_clusters, data, num_episodes=5):
         total_reward = 0
         num_steps = 0
         while not done:
-
-            cls = find_clusters(obs, all_clusters)
-            abstract_action = get_cluster_action(cls)
             
-            action = get_action(obs)
+            if topin:
+                abstract_action = apg_act(all_clusters, obs, act_dim)
+            else:
+                cls = find_clusters(obs, all_clusters)
+                abstract_action = get_cluster_action(cls)
+            
+            action = get_action(to_one_hot(obs))
             next_obs, reward, done, _ = env.step(action)
             next_obs = np.reshape(next_obs, [1, -1])
             obs = next_obs
