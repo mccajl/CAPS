@@ -16,7 +16,7 @@ class Explainer:
     def full_translate(self):
         self.group_states()
         p, c = self.calc_statistics()
-        #print(p)
+        print(p)
         f = self.pick_feats(p)
         c_sets, n_c_sets = self.get_corr_sets(f, c)
         n = self.group_feats(n_c_sets)
@@ -79,7 +79,7 @@ class Explainer:
     
     def get_corr_sets(self, include_feats, correlations):
         corr_sets = []
-        print(include_feats)
+        #print(include_feats)
         for i, feat in enumerate(include_feats):
             corr_feats = np.where(correlations[feat] > 0.7)[0]
             if len(corr_feats) > 1:
@@ -94,7 +94,7 @@ class Explainer:
             
         non_corr_set = include_feats
         for c_set in corr_sets:
-            print(c_set)
+            #print(c_set)
             for f in c_set:
                 non_corr_set.remove(f)
 

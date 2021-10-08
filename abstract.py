@@ -68,6 +68,7 @@ class APG:
             c.append(c1)
             c_binary.append(c1_binary)
         
+
         return c, c_binary
 
     
@@ -234,7 +235,7 @@ class APG:
             group_entropies[i] = mean_entropy
         
         sorted_idx = np.argsort(group_entropies)
-        top = sorted_idx[len(c) - num_criticals:]
+        top = sorted_idx[:num_criticals]
         critical_values[top] = 1
         
         return critical_values, group_entropies

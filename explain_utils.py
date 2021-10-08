@@ -4,7 +4,7 @@ from CLTree import CLTree
 from data import InstanceData
 
 
-def cluster_data(translator, abstraction_helper, dataset, attr_names, alpha, num_actions, lmbda, k, max_height=20, fidelity_fn=None, model_path=None, env='grid'):
+def cluster_data(translator, abstraction_helper, dataset, attr_names, alpha, num_actions, lmbda, k, max_height=20, model_path=None, env='grid'):
     cluster_data = InstanceData(dataset.cluster_input, dataset.num_feats+2, attr_names)
     cltree = CLTree(cluster_data)     
     cltree.buildTree()
@@ -18,10 +18,6 @@ def cluster_data(translator, abstraction_helper, dataset, attr_names, alpha, num
     lengths = []
     value_scores = []
     entropy_scores = []
-    if fidelity_fn is not None:
-        fidelity_scores = []
-    else:
-        fidelity_scores = None
     all_clusters = []
 
     test_alphas = np.arange(21)
@@ -47,11 +43,6 @@ def cluster_data(translator, abstraction_helper, dataset, attr_names, alpha, num
         #print("Total instances clustered: ", c)
         #print("Percent instances clusered: ", c/dataset.num_entries)
 
-        if fidelity_fn is not None:
-            assert model_path is not None
-            fidelity = fidelity_fn(model_path, clusters, dataset)
-            print('Fidelity: ', fidelity)
-            fidelity_scores.append(fidelity)
 
         abstract_state_groups = []
         abstract_binary_state_groups = []
@@ -139,7 +130,7 @@ def cluster_data(translator, abstraction_helper, dataset, attr_names, alpha, num
     if best_graphs[0] == 0: #Don't want to include the low graph since its value score is always low
         best_graphs = best_graph_idx[1:k+1]
     
-    return all_clusters, best_graphs, cluster_scores, value_scores, entropy_scores, fidelity_scores, lengths, 
+    return all_clusters, best_graphs, cluster_scores, value_scores, entropy_scores, lengths
 
 def graph_scores(env, alpha, lengths, cluster_scores=None, value_scores=None, entropy_scores=None, fidelity_scores=None):
     plt.style.use('ggplot')
