@@ -90,8 +90,8 @@ def cluster_data(translator, abstraction_helper, dataset, attr_names, alpha, num
         val_score = np.square(cluster_values - pred_cluster_values).mean()
         entropy_score = sum(cl_entropies) / len(cl_entropies)
 
-        print('Val score: ', val_score)
-        print('Entropy score: ', entropy_score)
+        #print('Val score: ', val_score)
+        #print('Entropy score: ', entropy_score)
 
         score = val_score + entropy_score
 
@@ -105,7 +105,7 @@ def cluster_data(translator, abstraction_helper, dataset, attr_names, alpha, num
         test_alpha_scores.append(test_a_scores)
         """
         
-        print('Cluster score (lower is better): ', a_score)
+        #print('Cluster score (lower is better): ', a_score)
 
         value_scores.append(val_score)
         entropy_scores.append(entropy_score)

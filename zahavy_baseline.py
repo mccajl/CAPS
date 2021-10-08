@@ -103,14 +103,14 @@ def explain_zahavy(args, dataset, translator, abstraction_helper, num_actions, f
             val_score = np.square(cluster_values - pred_cluster_values).mean()
             entropy_score = sum(cl_entropies) / len(cl_entropies)
 
-            print('Val score: ', val_score)
-            print('Entropy score: ', entropy_score)
+            #print('Val score: ', val_score)
+            #print('Entropy score: ', entropy_score)
 
             score = val_score + entropy_score
 
             a_score = score + alpha * len(clusters)
             
-            print('Cluster score (lower is better): ', a_score)
+            #print('Cluster score (lower is better): ', a_score)
 
             value_scores.append(val_score)
             entropy_scores.append(entropy_score)
@@ -180,7 +180,7 @@ def explain_zahavy(args, dataset, translator, abstraction_helper, num_actions, f
 
             l, transitions, taken_actions = abstraction_helper.compute_graph_info(abs_t)
 
-            """
+            
             for j in range(len(transitions)):
                 nonzero_idx = np.where(np.array(transitions[j])!=0)[0]
                 for idx in nonzero_idx:
@@ -198,7 +198,4 @@ def explain_zahavy(args, dataset, translator, abstraction_helper, num_actions, f
                     print('(Hayes) Group {}: {}'.format(j+1, hayes_translations[j]))
                 print('Critical value: {}. Entropy: {:.2f}'.format(critical_values[j], group_ent[j]))
             print('----------------------------------------')
-            """
-
-    np.save('fidelity_results/zahavy_lander_dqn.npy', np.array(fidelities))
-
+            

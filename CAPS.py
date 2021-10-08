@@ -9,7 +9,6 @@ from explain_utils import cluster_data
 Env specific info:
 run episode function
 predicate class
-calculate fidelity function
 number of actions
 number of features
 value function
@@ -47,11 +46,6 @@ def explain(args, dataset, model_path, translator, num_feats, num_actions, fidel
 
         
 
-        #fname = 'lunar_2.npy'
-        #np.save('./Plotting_data/score/{}'.format(fname), np.array(cluster_scores))
-        #np.save('./Plotting_data/entropy/{}'.format(fname), np.array(entropy_scores))
-        #np.save('./Plotting_data/value/{}'.format(fname), np.array(value_scores))
-        #np.save('./Plotting_data/lengths/{}'.format(fname), np.array(lengths))
 
         """
         graph_scores('cart', alpha, lengths, 
@@ -70,8 +64,6 @@ def explain(args, dataset, model_path, translator, num_feats, num_actions, fidel
         
         
         for h, clusters in enumerate(best_clusters):
-            #if h != 0:
-                #break
             print('***********************************************')
             print('Clusters at height {}'.format(best_heights[h]+1))
             
@@ -133,10 +125,4 @@ def explain(args, dataset, model_path, translator, num_feats, num_actions, fidel
                     print('(Hayes) Group {}: {}'.format(j+1, hayes_translations[j]))
                 print('Critical value: {}. Entropy: {:.2f}'.format(critical_values[j], group_ent[j]))
             print('----------------------------------------')
-        
-        
-
-    #e_data = [ls, e_scores]
-    #np.save('entropy_results/caps_mc_4.npy', np.array(e_data))    
-    #np.save('fidelity_results/caps_lander_dqn.npy', np.array(fidelities))
 

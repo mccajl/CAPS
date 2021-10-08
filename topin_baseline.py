@@ -13,14 +13,6 @@ def get_apg_action(abs_t, obs, num_actions):
             if np.array_equal(t[0], obs):
                 return t[1]
     
-    """
-    states = [t[0] for t in abs_t]
-    
-    for i, c in enumerate(states):
-        for s in c:
-            if np.array_equal(s, obs):
-                return i
-    """
     return np.random.randint(num_actions)
 
 def get_mean_values(abs_t):
@@ -51,7 +43,7 @@ def gen_apg(apg_baseline, model_path=None, calc_fidelity=None, mode="PPO"):
             fidelity = calc_fidelity(model_path, abstract_t, None, topin=True, apg_act=get_apg_action, mode=mode)
             print("Fidelity: ", fidelity)
             fidelities.append(fidelity)
-        """
+        
         for j in range(len(vals)):
             print("Group {} Pos Mean: {}. Vel Mean: {}".format(j+1, vals[j][0], vals[j][1]))
         
@@ -59,6 +51,6 @@ def gen_apg(apg_baseline, model_path=None, calc_fidelity=None, mode="PPO"):
             nonzero_idx = np.where(np.array(transitions[j])!=0)[0]
             for idx in nonzero_idx:
                 print('Group {} to Group {} with p={} and action {}'.format(j+1, idx+1, transitions[j][idx], int(np.mean(taken_actions[j][idx]))))
-        """
+        
 
-    np.save('fidelity_results/topin_lander.npy', np.array(fidelities))
+    #np.save('fidelity_results/topin_lander.npy', np.array(fidelities))
