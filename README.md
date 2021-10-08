@@ -3,7 +3,11 @@
 This project implements CAPS: Comprehensible Abstract Policy Summaries
 
 To run CAPS for an implemented environment:
+
+pip install -r requirements.txt
+
 python run.py --env='env_name' --path='model_path' --other_flags=...
+
 Ex: python run.py --env=mountain --path=./MountainCar/checkpoints/checkpoint-580 --num_episodes=3 --alg=PPO
 
 To run CAPS with a new environment:
